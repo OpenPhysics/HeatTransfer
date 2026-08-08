@@ -15,7 +15,7 @@ import { Shape } from "scenerystack/kite";
 import { Circle, LinearGradient, Node, Path, RadialGradient, Rectangle } from "scenerystack/scenery";
 import { ScreenIcon } from "scenerystack/sim";
 import HeatTransferColors from "../HeatTransferColors.js";
-import { sampleColorMap } from "./field/ColorMap.js";
+import { rgbToCss, sampleColorMap } from "./field/ColorMap.js";
 
 /** Icon canvas width. */
 const W = 548;
@@ -25,9 +25,7 @@ const H = 373;
 
 /** A colour from the temperature ramp, as a CSS string. */
 function rampColor(position: number): string {
-  const { red, green, blue } = sampleColorMap(position);
-  const to255 = (value: number): number => Math.round(Math.min(1, Math.max(0, value)) * 255);
-  return `rgb(${to255(red)}, ${to255(green)}, ${to255(blue)})`;
+  return rgbToCss(sampleColorMap(position));
 }
 
 function background(): Rectangle {
@@ -96,7 +94,7 @@ export function createConductionIcon(): ScreenIcon {
         background(),
         fieldTile(),
         hotSpot(centreX, centreY, 150),
-        new Path(arrows, { stroke: "#f2f2f5", lineWidth: 9, lineCap: "round" }),
+        new Path(arrows, { stroke: HeatTransferColors.heatFluxColorProperty, lineWidth: 9, lineCap: "round" }),
       ],
     }),
   );
@@ -117,7 +115,7 @@ export function createConvectionIcon(): ScreenIcon {
       new Circle(7, {
         x: 30 + n * 38,
         y: n % 2 === 0 ? H * 0.2 : H * 0.8,
-        fill: "#ffffff",
+        fill: HeatTransferColors.particleColorProperty,
         opacity: 0.85,
       }),
     );
@@ -163,7 +161,11 @@ export function createMaterialsIcon(): ScreenIcon {
         background(),
         fieldTile(),
         hotSpot(W * 0.24, H / 2, 165),
-        new Rectangle(W * 0.45, 40, 62, H - 80, 8, 8, { fill: "#2a2f42", stroke: "#8b90a4", lineWidth: 5 }),
+        new Rectangle(W * 0.45, 40, 62, H - 80, 8, 8, {
+          fill: HeatTransferColors.panelBackgroundColorProperty,
+          stroke: HeatTransferColors.fieldBorderColorProperty,
+          lineWidth: 5,
+        }),
         hotSpot(W * 0.82, H / 2, 130, 0.42),
       ],
     }),

@@ -10,8 +10,6 @@
  * around half the application.
  */
 
-import { RESOLUTION_PRESETS, type ResolutionPresetId } from "../../../HeatTransferConstants.js";
-
 export type WebGpuContext = {
   adapter: GPUAdapter;
   device: GPUDevice;
@@ -20,6 +18,18 @@ export type WebGpuContext = {
   /** Largest square grid this device's limits allow. */
   maxGridSize: number;
 };
+
+/**
+ * `canvas.getContext("webgpu")`, typed.
+ *
+ * TypeScript 7's DOM lib has every WebGPU interface but no `"webgpu"` overload on
+ * `getContext`, and augmenting `HTMLCanvasElement` to add one would reorder
+ * overload resolution for every other caller. One cast, in one place, is the
+ * smaller cost.
+ */
+export function requestCanvasContext(canvas: HTMLCanvasElement): GPUCanvasContext | null {
+  return (canvas.getContext("webgpu") as unknown as GPUCanvasContext | null) ?? null;
+}
 
 /** Whether this browser exposes the WebGPU entry point at all. */
 export function isWebGpuAvailable(): boolean {
@@ -69,22 +79,4 @@ export async function requestWebGpuContext(onDeviceLost?: (reason: string) => vo
     // Adapter or device request failed (blocklisted driver, headless, …).
     return null;
   }
-}
-
-/**
- * The finest preset a given device can actually allocate. A 2048 grid needs a
- * 2048-wide texture, which is below every conformant WebGPU limit, but the check
- * costs nothing and keeps the preset list honest on unusual hardware.
- */
-export function largestSupportedPreset(
-  presets: readonly ResolutionPresetId[],
-  maxGridSize: number,
-): ResolutionPresetId | null {
-  let best: ResolutionPresetId | null = null;
-  for (const preset of presets) {
-    if (RESOLUTION_PRESETS[preset] <= maxGridSize) {
-      best = preset;
-    }
-  }
-  return best;
 }

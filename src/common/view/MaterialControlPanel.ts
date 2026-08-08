@@ -15,7 +15,7 @@
  * close the heat equation.
  */
 
-import { DerivedProperty, PatternStringProperty, type TReadOnlyProperty } from "scenerystack/axon";
+import { DerivedProperty, PatternStringProperty } from "scenerystack/axon";
 import { type Node, VBox } from "scenerystack/scenery";
 import HeatTransferNamespace from "../../HeatTransferNamespace.js";
 import { StringManager } from "../../i18n/StringManager.js";
@@ -96,8 +96,5 @@ export class MaterialControlPanel extends HeatTransferPanel {
     this.controls = interactive;
   }
 }
-
-/** Type helper: the string tree exposes each key as `<key>StringProperty`. */
-export type NamedStrings<Key extends string> = Record<`${Key}StringProperty`, TReadOnlyProperty<string>>;
 
 HeatTransferNamespace.register("MaterialControlPanel", MaterialControlPanel);

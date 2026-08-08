@@ -1,127 +1,164 @@
 # CLAUDE.md — Heat Transfer
 
-Sim-specific context for AI assistants. General SceneryStack guidance: [OpenPhysics/.github/CLAUDE.md](https://github.com/OpenPhysics/.github/blob/main/CLAUDE.md).
+Sim-specific context for AI assistants. General SceneryStack guidance:
+[OpenPhysics/.github/CLAUDE.md](https://github.com/OpenPhysics/.github/blob/main/CLAUDE.md).
 
-## Project
+## What this sim is
 
-Reusable SceneryStack template (one or N screens) and **canonical accessibility reference** for
-OpenPhysics sims. Prefer `Baton/scripts/create-sim.sh` (or GitHub **Use this template** +
-`npm run rename` + `npm run scaffold-screens`) to fork it. For multi-screen sims, see
-[`doc/multi-screen.md`](doc/multi-screen.md).
+Heat as a field, on a WebGPU field engine. The governing equation is
+
+```
+ρc_p ∂T/∂t + ρc_p (v · ∇T) = ∇ · (k ∇T)
+```
+
+with terms switched on screen by screen. Physics and numerics:
+[`doc/model.md`](doc/model.md). Architecture and the reasoning behind it:
+[`doc/implementation-notes.md`](doc/implementation-notes.md). **Read
+implementation-notes before changing anything under `src/common/field/`.**
+
+## The one rule to keep
+
+> The temperature field is GPU-native data, not a Scenery-rendered image that
+> happens to contain a field.
+
+Concretely, three invariants are worth defending:
+
+1. **Nothing outside `SimulationDomain` knows the grid size.** The `FieldEngine`
+   interface speaks unit-square coordinates and SI units, never cells. If you find
+   yourself passing an `i, j` across that boundary, something has gone wrong.
+2. **One Scenery node for the field, at any resolution.** `FieldNode` is the whole
+   Scenery/WebGPU boundary. Do not add per-cell nodes.
+3. **`kernels.ts` and the WGSL compute shaders are the same algorithm twice.**
+   Change one and you must change the other; the function names are deliberately
+   paired (`fetchCell`/`fetchScalar`, `bilinearSample`/`bilinearScalar`) so the
+   correspondence is greppable. The unit tests pin down `kernels.ts` and therefore
+   constrain the shaders.
 
 ## Key files
 
 | File | Purpose |
 |---|---|
-| `src/HeatTransferColors.ts` | All `ProfileColorProperty` instances |
+| `src/HeatTransferColors.ts` | All `ProfileColorProperty` instances, including the field overlays |
 | `src/HeatTransferConstants.ts` | Named numeric constants (layout px, physics SI units) |
 | `src/HeatTransferNamespace.ts` | Namespace for color property names |
 | `src/i18n/StringManager.ts` | Singleton localized string accessor |
-| `src/temperature/TemperatureScreen.ts` | Screen wrapper |
-| `src/temperature/model/TemperatureModel.ts` | Simulation state and logic |
-| `src/temperature/view/TemperatureScreenView.ts` | Visual nodes, layout, `screenSummaryContent` + `pdomOrder` |
-| `src/temperature/view/TemperatureScreenSummaryContent.ts` | Accessible screen summary (reference a11y pattern) |
-| `src/temperature/view/TemperatureKeyboardHelpContent.ts` | Keyboard-help dialog content |
-| `src/common/HeatTransferPanel.ts` | Pre-themed `Panel` wrapper (uses `HeatTransferColors` automatically) |
-| `src/common/HeatTransferButtonOptions.ts` | Flat button-appearance option bundles + light-control-surface combo-box options |
-| `src/common/TimeModel.ts` | Composable play/pause + elapsed-time model for animated sims |
-| `scripts/generate-icons.ts` | PNG icons from `public/icons/icon.svg` |
-| `scripts/rename-sim.ts` | Sim-level fork/rename (package id + metadata, Colors, Constants, Panel, ButtonOptions, Preferences) |
-| `scripts/scaffold-screens.ts` | Emit N screen packages + wire main/strings/icons |
+| `src/preferences/` | Grid resolution, field-status readout, query parameters |
+| **Field engine** | |
+| `src/common/field/SimulationDomain.ts` | The only place that knows the grid size |
+| `src/common/field/FieldEngine.ts` | The interface the model talks to |
+| `src/common/field/FieldEngineBase.ts` | Sampling, strokes, materials — everything both backends share |
+| `src/common/field/kernels.ts` | The reference numerics, in plain TypeScript |
+| `src/common/field/ColorMap.ts` | One ramp, generated into both TS and WGSL |
+| `src/common/field/VelocityPresets.ts` | Analytic divergence-free flows |
+| `src/common/field/cpu/` | Reference backend + 2-D canvas renderer |
+| `src/common/field/gpu/` | WebGPU backend, device acquisition, WGSL sources |
+| `src/common/field/gpu/webgpu-globals.d.ts` | The flag namespaces TS 7's DOM lib omits |
+| **Model / view** | |
+| `src/common/model/FieldSimulationModel.ts` | The model every screen composes |
+| `src/common/view/FieldNode.ts` | The Scenery/WebGPU boundary |
+| `src/common/view/FieldScreenView.ts` | Shared layout and frame loop |
+| `src/common/view/ControlFactory.ts` | The sim's themed control vocabulary |
+| `src/common/HeatTransferScreenIcons.ts` | Programmatic screen icons |
+| **Screens** | `src/{temperature,conduction,convection,combined,materials}/` |
 
-## Common components
+## Screens
 
-### HeatTransferPanel
+| Folder | Class prefix | Adds |
+|---|---|---|
+| `temperature/` | `Temperature` | The bare field: paint, look, probe |
+| `conduction/` | `Conduction` | Materials, edges, flux arrows, cross-section graph |
+| `convection/` | `Convection` | The velocity field and tracer particles |
+| `combined/` | `HeatTransfer` | Transport balance and the Péclet number |
+| `materials/` | `Materials` | A paintable material field and anisotropy |
 
-Every control panel and info box in the sim should use `HeatTransferPanel` so that
-default/projector color switching is automatic:
+The combined screen's folder is `combined/` while its classes are `HeatTransfer*`,
+so that `HeatTransferScreen` does not collide with the sim-level `HeatTransfer*`
+files at `src/` root.
 
-```typescript
-import { HeatTransferPanel } from "../../common/HeatTransferPanel.js";
-const panel = new HeatTransferPanel(content);              // uses HeatTransferColors defaults
-const panel = new HeatTransferPanel(content, { xMargin: 20 }); // override any PanelOption
-```
+## Things that will bite you
 
-### TimeModel
-
-For simulations with animation, compose `TimeModel` into your screen model:
-
-```typescript
-import { TimeModel } from "../../common/TimeModel.js";
-
-export class MyModel implements TModel {
-  public readonly timer = new TimeModel();   // starts paused; pass true to auto-play
-
-  public step(dt: number): void {
-    this.timer.step(dt);
-    // use this.timer.timeProperty.value for physics
-  }
-  public reset(): void { this.timer.reset(); /* … */ }
-}
-```
-
-Wire the view to `TimeControlNode` from `scenerystack/scenery-phet` binding on
-`model.timer.isPlayingProperty`.
-
-### HeatTransferButtonOptions
-
-SceneryStack's push/round buttons default to a 3-D/beveled look; every button in the sim
-should be flat instead. Spread these into the relevant options object:
-
-```typescript
-import { FLAT_RESET_ALL_BUTTON_OPTIONS, FLAT_RECTANGULAR_BUTTON_OPTIONS } from "../../common/HeatTransferButtonOptions.js";
-
-const resetAllButton = new ResetAllButton({ ...FLAT_RESET_ALL_BUTTON_OPTIONS, listener: () => {...} });
-const exampleButton = new RectangularPushButton({ ...FLAT_RECTANGULAR_BUTTON_OPTIONS, content, listener });
-```
-
-`FLAT_PLAY_PAUSE_STEP_BUTTON_OPTIONS` spreads into `TimeControlNode`'s `playPauseStepButtonOptions`;
-`TIME_CONTROL_SPEED_RADIO_OPTIONS` fixes `TimeControlNode`'s speed-radio label color, which
-otherwise defaults to black text on the sim's dark default-mode panels. `HEAT_TRANSFER_COMBO_BOX_OPTIONS`
-themes a `ComboBox`'s button/list chrome to the light control surface below; pair item labels
-with `LIGHT_SURFACE_TEXT_FILL` (not `HeatTransferColors.textColorProperty`, which is for panel-fill text).
-
-`HeatTransferColors.ts` backs this with a "light control surfaces" section —
-`controlSurfaceColorProperty`, `controlSurfaceDisabledColorProperty`,
-`controlSurfaceTextColorProperty` — identical white/dark-text values in both default and
-projector profiles, so any component that must stay light regardless of theme (combo boxes,
-flat buttons, editable fields) keeps readable contrast automatically.
+- **Backend selection is asynchronous exactly once.** `initializeGpuContext()` runs
+  in `main.ts` before `sim.start()`. Everything after it is synchronous, because
+  SceneryStack builds a screen's model lazily and synchronously. Do not make
+  `createFieldEngine` async.
+- **Explicit bind group layouts, never `layout: "auto"`.** 32-bit float textures
+  can only be bound as `unfilterable-float`; an inferred layout asks for a
+  filterable float and fails on most hardware.
+- **Uniform block sizes are hand-computed.** The `*_PARAMS_BYTES` constants beside
+  each shader must match the WGSL struct's actual size under `vec4`'s 16-byte
+  alignment. Getting this wrong produces garbage, not an error.
+- **`FieldScreenView` sets `pdomOrder` on a wrapper node.** `ScreenView` throws if
+  you set it on itself, and a node listed twice throws too — the probe checkbox is
+  already inside `layerPanel.checkboxes`.
+- **The temperature ramp is not themed.** Overlay colours follow the colour profile
+  via `FieldRenderStyle`; the ramp itself must not, or the legend would lie.
+- **Node 24 is the fleet version.** `npm install` on Node 22 warns about
+  `engines.node` but works; CI uses 24.
 
 ## Accessibility
 
-This template is the **canonical accessibility reference** for OpenPhysics sims. It ships with
-the three required layers wired up: PDOM names, a `TemperatureScreenSummaryContent`, and an explicit
-`pdomOrder` + `TemperatureKeyboardHelpContent`. A11y strings live under the `a11y` key in each locale
-JSON, exposed via `StringManager.getTemperatureA11yStrings()`. When building a real sim, make
-`currentDetailsContent` a live `DerivedProperty` over model state and add `accessibleName`s to
-every interactive node. Full convention and checklist: [Baton/ACCESSIBILITY.md](https://github.com/OpenPhysics/Baton/blob/main/ACCESSIBILITY.md).
+The three required layers are wired up: PDOM names from the `a11y` string group,
+a `*ScreenSummaryContent` per screen whose `currentDetailsContent` derives live
+from the field's min/max temperature, and an explicit `pdomOrder` plus a
+`*KeyboardHelpContent` per screen.
+
+The field itself needed something beyond the standard controls, since it is a
+continuous canvas rather than a slider or a draggable object: it has a **paint
+cursor** (arrow keys to move, shift for finer steps, space or enter to paint),
+documented by `HeatBrushKeyboardHelpSection`. Keep that working when touching
+`FieldNode`.
+
+Full convention:
+[Baton/ACCESSIBILITY.md](https://github.com/OpenPhysics/Baton/blob/main/ACCESSIBILITY.md).
 
 ## Compliance carve-outs
 
-A clean fork of this template rarely needs compliance carve-outs — root `HeatTransferConstants.ts`,
-`*Colors.ts`, `*Namespace.ts`, standard screen layout, and full a11y wiring pass Baton's
-compliance check out of the box. Document carve-outs in the forked sim's `CLAUDE.md` only when
-you introduce a deliberate deviation (nested constants, hardcoded interaction fills, etc.).
+- **`src/common/field/gpu/webgpu-globals.d.ts`** — an ambient declaration file
+  under `src/`. TypeScript 7's `lib.dom.d.ts` ships the WebGPU interfaces but not
+  the `GPUBufferUsage` / `GPUTextureUsage` / `GPUShaderStage` flag namespaces.
+  Declaring those here is cheaper and less fragile than adding `@webgpu/types`,
+  which would redeclare all 107 interfaces and collide with the built-in ones.
+  Delete it when a TypeScript release fills the gap — `npm run check` will say so.
+  Note it deliberately does *not* add a `getContext("webgpu")` overload: augmenting
+  `HTMLCanvasElement` puts the new overload ahead of the built-ins in resolution
+  order and breaks generic `getContext(id, ...args)` forwarding, including the
+  fleet's own `tests/setup.ts` canvas mock. `requestCanvasContext` in
+  `WebGpuSupport.ts` does that cast in one place instead.
+- **`tsconfig.test.json` lists one extra path.** Ambient declarations are not
+  inherited through `extends`, and the tests import src modules that use the
+  WebGPU flag namespaces, so the test project includes
+  `src/common/field/gpu/webgpu-globals.d.ts` alongside `tests`.
+- **`rgbToCss` in `ColorMap.ts`** — flagged by the compliance scan as a possible
+  hardcoded colour because it builds an `rgb(...)` string. It is a *format* helper,
+  not a palette: the components it is handed come either from the temperature ramp
+  (a quantitative encoding, deliberately not themed) or from a
+  `ProfileColorProperty` by way of `FieldRenderStyle`. Nothing in it chooses a
+  colour, and it is the single such helper in the sim.
+- **No `src/common/TimeModel.ts`.** The template's composable timer does not fit:
+  the engine's simulated time is set by the stability-limited step, not by
+  accumulating `dt`, so `FieldSimulationModel` owns `isPlayingProperty` and
+  `timeSpeedProperty` directly and reads elapsed time from the engine.
 
 ## Testing
 
-Fleet-standard Vitest layout (keep when forking):
+Fleet-standard Vitest layout, `happy-dom` environment, `tests/setup.ts` mocks
+Canvas 2D and AudioContext.
 
-| Path | Purpose |
+| Path | Covers |
 |---|---|
-| `vitest.config.ts` | `happy-dom` environment; `setupFiles: ["./tests/setup.ts"]`; `execArgv: ["--expose-gc"]` |
-| `tests/setup.ts` | Canvas / AudioContext mocks + `init({ name: "…" })` before SceneryStack imports |
-| `tests/TimeModel.test.ts` | Sample model unit tests — replace with real physics tests |
-| `tests/memory-leak.test.ts` | WeakRef + `forceGC` dispose regression (fleet pattern) |
-| `tests/fuzz/fuzz.spec.ts` | Optional Playwright fuzz smoke via joist `?fuzz` |
-| `playwright.config.ts` | Chromium project + Vite webServer for fuzz |
+| `tests/common/field/kernels.test.ts` | Energy conservation, stability bound, Fourier's law, harmonic-mean barriers, anisotropy, advective translation |
+| `tests/common/field/SimulationDomain.test.ts` | Resolution independence |
+| `tests/common/field/ColorMap.test.ts` | Ramp ordering, WGSL generation |
+| `tests/common/field/VelocityPresets.test.ts` | Bounded, divergence-free flows |
+| `tests/common/field/CpuFieldEngine.test.ts` | The `FieldEngine` interface end to end |
+| `tests/common/model/FieldSimulationModel.test.ts` | Property wiring, reset, Péclet, CPU clamping |
+| `tests/memory-leak.test.ts` | Engines and models collected after `dispose()` |
 
-- Put unit tests only under root `tests/`, mirroring `src/` (never co-locate or use `__tests__/`).
-- Change the `name` passed to `init()` in `tests/setup.ts` to match `package.json` after `npm run rename`.
-- Run `npm test`. CI runs the suite when a `test` script is present.
-- Expand `memory-leak.test.ts` for any component that adds/removes nodes or links Properties at
-  runtime (see OpticsLab for a deep suite).
-- Optional: `npm run test:fuzz` / `test:fuzz:quick` (not part of default CI).
+WebGPU is unavailable under Vitest, so the suites cover the CPU backend. When
+changing the shaders, verify them against the CPU backend **in a browser** — run
+both engines from the same initial condition and compare mean temperature, which
+should agree to ~6 significant figures. See implementation-notes §"The two
+backends".
 
 ## Commands
 
@@ -134,72 +171,12 @@ npm run lint && npm run check && npm run build && npm test
 | `npm start` / `npm run dev` | Vite dev server |
 | `npm run build` | Type-check + production build |
 | `npm run build:single` | Single-file build mode |
-| `npm run check` | TypeScript (`tsc --noEmit` + scripts project) |
+| `npm run check` | TypeScript (app, scripts, tests) |
 | `npm run lint` / `npm run fix` | Biome check / auto-fix |
 | `npm test` | Vitest unit tests |
 | `npm run test:fuzz` | Playwright fuzz smoke |
-| `npm run test:fuzz:quick` | 10s fuzz |
 | `npm run icons` | Regenerate PWA icons |
-| `npm run rename` | Sim-level fork/rename (`--id`, `--name`) |
-| `npm run scaffold-screens` | Emit N screens (`--screens Intro,Lab`) |
 
-## Customizing a new sim from this template
-
-### Recommended: Baton create-sim
-
-```sh
-Baton/scripts/create-sim.sh --repo Friction --name "Friction" --screens Intro,Lab --shared-model --onboard
-```
-
-### Manual: GitHub template + rename + scaffold
-
-```sh
-npm install
-npm run rename -- --id friction --name "Friction"
-npm run scaffold-screens -- --screens Intro,Lab --shared-model
-# omit --screens for one screen named after the sim; omit --shared-model for independent models
-npm run fix     # required: both scripts reorder imports, which Biome then sorts
-npm run check
-```
-
-`rename` updates package id and metadata, display name, and every sim-level `Sim*`
-(Colors, Constants, Namespace, Panel, ButtonOptions, Preferences, query parameters).
-`scaffold-screens` owns screen folders (fleet naming: `src/intro/`, not `intro-screen/`).
-After both steps no `Sim*` identifier should remain — `grep -rn '\bSim[A-Z_]' src` to confirm.
-
-### Manual checklist (if not using the scripts)
-
-1. **Rename** — replace `heat-transfer` / `Heat Transfer` / `Sim` prefix in `init.ts`, `brand.ts`, `package.json` (name, description, keywords, repository.url), Colors/Constants/Namespace/Panel/ButtonOptions/Preferences
-2. **Screens** — run `scaffold-screens` or mirror `temperature/` into kebab folders
-3. **Locale** — add `strings_XX.json`, register in `StringManager`, add locale to `init.ts` `availableLocales`
-4. **Icon** — edit `public/icons/icon.svg`, run `npm run icons`; match theme color in `index.html` / `vite.config.ts`
-5. **Colors** — edit `*Colors.ts` (`default` + `projector` profiles per property)
-
-## Multi-screen sims
-
-Full guide: [`doc/multi-screen.md`](doc/multi-screen.md)
-
-Summary:
-- Prefer `npm run scaffold-screens -- --screens Intro,Lab` (add `--shared-model` for a root model)
-- Or create a screen folder mirroring `src/temperature/` for each screen (kebab names, no `-screen` suffix)
-- Add screen-name keys to all locale JSON files; nest `a11y` per screen
-- Expose new getters in `StringManager.getScreenNames()` / `get{Screen}A11yStrings()`
-- Shared state: `--shared-model` → `common/model/SharedModel.ts` composed per screen (rename to a domain type)
-- Add `src/common/HeatTransferScreenIcons.ts` with `create{Screen}Icon()` factories; wire `homeScreenIcon` + `navigationBarIcon` on each Screen
-- Register all screens in the `screens` array in `main.ts`
-
-## Using this template beyond a direct copy
-
-| Approach | When to use |
-|---|---|
-| **`Baton/scripts/create-sim.sh`** | Agents / fleet — create repo, rename, scaffold N screens |
-| **GitHub template** ("Use this template") | Humans starting a sim in the browser |
-| `npm run rename` + `scaffold-screens` | Same, after cloning the template |
-| **npm workspace / monorepo** | Managing a suite of sims with shared tooling |
-| **git subtree** for pulling updates | Keeping forks in sync with template improvements |
-
-See `doc/multi-screen.md` → "Using this template beyond a direct copy" for details.
-
-## PWA
-
-After `npm run build`, the sim is installable offline via Workbox (`dist/manifest.webmanifest`).
+Useful while developing: `?forceCpu=true` to compare backends on one machine,
+`?resolution=large` to check the field engine at 1024², `?screens=N` to open one
+screen directly.

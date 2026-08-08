@@ -67,7 +67,7 @@ import {
   PARTICLE_VERTEX_COUNT,
   RENDER_PARAMS_BYTES,
 } from "./shaders/render.js";
-import type { WebGpuContext } from "./WebGpuSupport.js";
+import { requestCanvasContext, type WebGpuContext } from "./WebGpuSupport.js";
 
 /** Index into the ping-pong pair. Typed as a literal union so tuple reads are exact. */
 type PingPongIndex = 0 | 1;
@@ -143,7 +143,7 @@ export class WebGpuFieldEngine extends FieldEngineBase {
     super(domain, options);
 
     this.device = gpu.device;
-    const context = this.canvas.getContext("webgpu");
+    const context = requestCanvasContext(this.canvas);
     if (!context) {
       throw new Error("WebGpuFieldEngine: canvas did not provide a webgpu context");
     }

@@ -18,7 +18,7 @@
  */
 
 import { FLUX_ARROW_COUNT, ISOTHERM_INTERVAL_K, MAX_ARROW_LENGTH_FRACTION } from "../../../HeatTransferConstants.js";
-import { sampleColorMap } from "../ColorMap.js";
+import { rgbToCss, sampleColorMap } from "../ColorMap.js";
 import type { FieldRenderStyle } from "../FieldEngine.js";
 import type { BoundaryConditionId, LayerVisibility } from "../FieldTypes.js";
 import { type FieldGeometry, gradientAt, type MaterialArrays } from "../kernels.js";
@@ -448,10 +448,4 @@ function drawArrow(
   );
   context.closePath();
   context.fill();
-}
-
-/** Formats a colour in [0, 1] components as a CSS `rgb()` string. */
-function rgbToCss(color: { red: number; green: number; blue: number }): string {
-  const to255 = (value: number): number => Math.round(Math.min(1, Math.max(0, value)) * 255);
-  return `rgb(${to255(color.red)}, ${to255(color.green)}, ${to255(color.blue)})`;
 }

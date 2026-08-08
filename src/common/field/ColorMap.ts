@@ -74,11 +74,16 @@ export function sampleColorMap(position: number): Rgb {
   return { red: last.red, green: last.green, blue: last.blue };
 }
 
-/** Samples the ramp and formats the result as a CSS `rgb()` string. */
-export function colorMapCss(position: number): string {
-  const { red, green, blue } = sampleColorMap(position);
+/**
+ * Formats an {@link Rgb} as a CSS colour string.
+ *
+ * A *format* helper, not a palette: the components it is handed always come from
+ * the ramp or from a `ProfileColorProperty` by way of `FieldRenderStyle`. Nothing
+ * here chooses a colour.
+ */
+export function rgbToCss(color: Rgb): string {
   const to255 = (value: number): number => Math.round(Math.min(1, Math.max(0, value)) * 255);
-  return `rgb(${to255(red)}, ${to255(green)}, ${to255(blue)})`;
+  return `rgb(${to255(color.red)}, ${to255(color.green)}, ${to255(color.blue)})`;
 }
 
 /**

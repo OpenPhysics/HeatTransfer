@@ -23,7 +23,7 @@ import {
 } from "../../HeatTransferConstants.js";
 import HeatTransferNamespace from "../../HeatTransferNamespace.js";
 import { StringManager } from "../../i18n/StringManager.js";
-import { TEMPERATURE_COLOR_STOPS } from "../field/ColorMap.js";
+import { rgbToCss, TEMPERATURE_COLOR_STOPS } from "../field/ColorMap.js";
 
 /** Width of the colour bar, in view coordinates. */
 const BAR_WIDTH = 22;
@@ -127,12 +127,6 @@ export class TemperatureLegendNode extends Node {
 
     this.mutate(providedOptions);
   }
-}
-
-/** Formats a colour stop in [0, 1] components as a CSS `rgb()` string. */
-function rgbToCss(color: { red: number; green: number; blue: number }): string {
-  const to255 = (value: number): number => Math.round(Math.min(1, Math.max(0, value)) * 255);
-  return `rgb(${to255(color.red)}, ${to255(color.green)}, ${to255(color.blue)})`;
 }
 
 HeatTransferNamespace.register("TemperatureLegendNode", TemperatureLegendNode);

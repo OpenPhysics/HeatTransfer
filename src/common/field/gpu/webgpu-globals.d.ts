@@ -3,10 +3,16 @@
  *
  * TypeScript 7's `lib.dom.d.ts` ships the WebGPU *interfaces* (GPUDevice,
  * GPUTexture, GPUCanvasContext, …) but not the flag namespaces the API is
- * configured with, nor the `getContext("webgpu")` overload. Those are the only
- * two gaps, so declaring them here is cheaper and less fragile than pulling in
- * `@webgpu/types`, which would redeclare all 107 interfaces and collide with the
- * built-in ones.
+ * configured with. Declaring those here is cheaper and less fragile than pulling
+ * in `@webgpu/types`, which would redeclare all 107 interfaces and collide with
+ * the built-in ones.
+ *
+ * The other gap — a `getContext("webgpu")` overload — is deliberately *not*
+ * patched here. Augmenting `HTMLCanvasElement` puts the new overload ahead of the
+ * built-ins in resolution order, which breaks any code that forwards
+ * `getContext(id, ...args)` generically (the fleet's `tests/setup.ts` canvas mock
+ * does exactly that). `requestCanvasContext` in WebGpuSupport.ts does the cast in
+ * one place instead.
  *
  * Nothing in this file describes behaviour — it is purely the missing half of an
  * existing type declaration. If a future TypeScript release fills these in, this
@@ -52,7 +58,3 @@ declare const GPUColorWrite: {
   readonly ALPHA: 0x8;
   readonly ALL: 0xf;
 };
-
-interface HTMLCanvasElement {
-  getContext(contextId: "webgpu"): GPUCanvasContext | null;
-}

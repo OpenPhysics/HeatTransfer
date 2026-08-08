@@ -21,7 +21,7 @@
 
 import { ADVECT_SHADER, BRUSH_SHADER, DIFFUSE_SHADER, PARTICLE_COMPUTE_SHADER } from "./shaders/compute.js";
 import { ARROW_RENDER_SHADER, FIELD_RENDER_SHADER, PARTICLE_RENDER_SHADER } from "./shaders/render.js";
-import { requestWebGpuContext, type WebGpuContext } from "./WebGpuSupport.js";
+import { requestCanvasContext, requestWebGpuContext, type WebGpuContext } from "./WebGpuSupport.js";
 
 /** Why the simulation is not using the GPU, when it is not. */
 export const GpuUnavailableReason = {
@@ -45,11 +45,6 @@ export type GpuInitializationResult = {
 };
 
 let cached: GpuInitializationResult | null = null;
-
-/** The result of the one-time initialization, or null if it has not run yet. */
-export function getGpuInitialization(): GpuInitializationResult | null {
-  return cached;
-}
 
 /** The device, if the simulation has one. */
 export function getGpuContext(): WebGpuContext | null {
@@ -95,11 +90,6 @@ export async function initializeGpuContext(forceCpu: boolean): Promise<GpuInitia
   return cached;
 }
 
-/** Resets the cache. Test-only; the simulation acquires a device exactly once. */
-export function resetGpuContextForTesting(): void {
-  cached = null;
-}
-
 /** Edge length of the throwaway canvas used by the presentation check. */
 const PRESENTATION_PROBE_SIZE = 4;
 
@@ -123,7 +113,7 @@ function canPresentToCanvas(device: GPUDevice, format: GPUTextureFormat): boolea
     const source = document.createElement("canvas");
     source.width = PRESENTATION_PROBE_SIZE;
     source.height = PRESENTATION_PROBE_SIZE;
-    const gpuContext = source.getContext("webgpu");
+    const gpuContext = requestCanvasContext(source);
     if (!gpuContext) {
       return false;
     }

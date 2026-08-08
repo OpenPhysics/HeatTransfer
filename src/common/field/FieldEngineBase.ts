@@ -173,23 +173,6 @@ export abstract class FieldEngineBase implements FieldEngine {
     this.material.volumetricHeatCapacity.fill(volumetricHeatCapacity(material));
   }
 
-  /** Recomputes `maxDiffusivity` exactly by scanning the material field. */
-  protected recomputeDiffusivityStatistics(): void {
-    let max = 0;
-    let sum = 0;
-    const cells = this.domain.cellCount;
-    for (let index = 0; index < cells; index++) {
-      const rhoCp = this.material.volumetricHeatCapacity[index] ?? 1;
-      const alpha = Math.max(this.material.conductivityX[index] ?? 0, this.material.conductivityY[index] ?? 0) / rhoCp;
-      sum += alpha;
-      if (alpha > max) {
-        max = alpha;
-      }
-    }
-    this.maxDiffusivity = max;
-    this.diffusivitySum = sum;
-  }
-
   // ── Authoring: flow ─────────────────────────────────────────────────────────
 
   public setFlow(preset: FlowPresetId, speed: number): void {

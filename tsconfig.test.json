@@ -4,5 +4,6 @@
     "noEmit": true,
     "types": ["node", "vite/client", "vitest/globals"]
   },
-  "include": ["tests"]
+  "// webgpu-globals.d.ts": "Ambient declarations are not inherited through `extends`, and the tests import src modules that use the WebGPU flag namespaces. Listing the one declaration file keeps this project type-checking the same source the app project does, without re-checking all of src.",
+  "include": ["tests", "src/common/field/gpu/webgpu-globals.d.ts"]
 }
