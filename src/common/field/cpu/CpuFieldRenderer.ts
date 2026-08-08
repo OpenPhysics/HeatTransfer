@@ -33,7 +33,7 @@ const COLOR_LUT_SIZE = 256;
 const GRADIENT_LIFT = 0.55;
 
 /** Opacity of the material tint overlay. */
-const MATERIAL_TINT_ALPHA = 0.45;
+const MATERIAL_TINT_ALPHA = 0.35;
 
 /** Radius of a tracer particle, in display pixels. */
 const PARTICLE_RADIUS = 1.6;

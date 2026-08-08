@@ -211,12 +211,13 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     clamp(i32(particle.position.y * f32(params.gridSize.y)), 0, i32(params.gridSize.y) - 1),
   );
   let velocity = textureLoad(velocityTexture, cell, 0).xy * params.flowScale;
-  let next = particle.position + velocity * params.dt / params.physicalSize;
+  // Wrap rather than respawn on leaving: a tracer that exits one side re-enters
+  // the other, so a uniform flow reads as a steady stream instead of a static
+  // sprinkle of freshly spawned dots.
+  let advanced = particle.position + velocity * params.dt / params.physicalSize;
+  let next = advanced - floor(advanced);
 
-  let expired = particle.life <= 0.0;
-  let escaped = next.x < 0.0 || next.x > 1.0 || next.y < 0.0 || next.y > 1.0;
-
-  if (expired || escaped) {
+  if (particle.life <= 0.0) {
     let respawnSeed = seedBits ^ bitcast<u32>(particle.life) ^ 0x9e3779b9u;
     particle.position = vec2<f32>(hashToUnit(respawnSeed), hashToUnit(respawnSeed ^ 0x85ebca6bu));
     particle.life = params.lifetime;

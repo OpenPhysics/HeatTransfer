@@ -1,43 +1,65 @@
 /**
  * MaterialsModel.ts
  *
- * The top-level model for the simulation screen.
+ * Screen 5: the material becomes a field too.
  *
- * Add your simulation's state here using reactive Property objects from
- * scenerystack/axon. The view observes these properties and updates automatically.
+ * Up to here `k`, `rho`, and `c_p` have been three numbers. Here they are three
+ * more textures, painted the same way temperature is painted, and the governing
+ * equation becomes the general one:
  *
- * ── Example ──────────────────────────────────────────────────────────────────
- *   import { BooleanProperty, NumberProperty } from "scenerystack/axon";
+ *   rho c_p dT/dt = div(k grad T)
  *
- *   public readonly isRunningProperty = new BooleanProperty(false);
- *   public readonly timeProperty = new NumberProperty(0);    // seconds
- *
- * ── Step cycle ────────────────────────────────────────────────────────────────
- * The Sim calls step(dt) on every animation frame. Advance your model state
- * in that method (e.g. integrate equations, update positions).
- *
- * ── Reset ─────────────────────────────────────────────────────────────────────
- * reset() is called when the user presses Reset All. Call .reset() on every
- * Property declared here.
+ * The face conductivities in the diffusion kernel are harmonic means, so a
+ * one-cell strip of foam really does act as a thermal resistance in series rather
+ * than being averaged into its neighbours. That is what makes a painted barrier
+ * behave like a barrier.
  */
 import type { TModel } from "scenerystack/joist";
+import { BoundaryCondition, FlowPreset, InitialCondition } from "../../common/field/FieldTypes.js";
+import { BrushMode, FieldSimulationModel } from "../../common/model/FieldSimulationModel.js";
+import { FIELD_VIEW_SIZE } from "../../HeatTransferConstants.js";
+import type { HeatTransferPreferencesModel } from "../../preferences/HeatTransferPreferencesModel.js";
+
+/** Backing-canvas resolution multiplier, so the field is crisp on high-DPI displays. */
+const CANVAS_SCALE = 2;
 
 export class MaterialsModel implements TModel {
-  /**
-   * Resets all model state to initial values.
-   * Called when the user presses the Reset All button.
-   */
-  public reset(): void {
-    // TODO: call .reset() on every Property declared in this model
+  public readonly field: FieldSimulationModel;
+
+  public constructor(preferences: HeatTransferPreferencesModel) {
+    this.field = new FieldSimulationModel({
+      advectionEnabled: false,
+      boundaryCondition: BoundaryCondition.INSULATED,
+      defaultLayers: {
+        temperature: true,
+        isotherms: false,
+        heatFlux: true,
+        velocity: false,
+        gradient: false,
+        material: true,
+      },
+      initialCondition: InitialCondition.UNIFORM,
+      initialFlowPreset: FlowPreset.NONE,
+      resolution: preferences.resolutionProperty.value,
+      displaySize: FIELD_VIEW_SIZE * CANVAS_SCALE,
+      initiallyPlaying: true,
+    });
+
+    // This screen opens in material-painting mode: building the medium is the
+    // first thing to do, and heating it only means something afterwards.
+    this.field.brushModeProperty.value = BrushMode.MATERIAL;
   }
 
-  /**
-   * Steps the model forward by dt seconds.
-   * Called every animation frame by the Sim framework.
-   *
-   * @param _dt - elapsed time in seconds since the last frame
-   */
-  public step(_dt: number): void {
-    // TODO: advance simulation state here
+  public step(dt: number): void {
+    this.field.step(dt);
+  }
+
+  public reset(): void {
+    this.field.reset();
+    this.field.brushModeProperty.value = BrushMode.MATERIAL;
+  }
+
+  public dispose(): void {
+    this.field.dispose();
   }
 }

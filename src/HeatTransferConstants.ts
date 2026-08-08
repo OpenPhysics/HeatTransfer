@@ -25,16 +25,31 @@ export const PANEL_CORNER_RADIUS = 6;
 export const PANEL_SPACING = 10;
 
 /** Side length of the square field view, in screen pixels. */
-export const FIELD_VIEW_SIZE = 470;
+export const FIELD_VIEW_SIZE = 480;
 
 /** Left edge of the field view. */
-export const FIELD_VIEW_LEFT = 40;
+export const FIELD_VIEW_LEFT = 25;
 
 /** Top edge of the field view. */
-export const FIELD_VIEW_TOP = 60;
+export const FIELD_VIEW_TOP = 55;
 
-/** Width of the control column down the right-hand side. */
-export const CONTROL_PANEL_WIDTH = 240;
+/** Left edge of the temperature legend, just right of the field. */
+export const LEGEND_LEFT = 517;
+
+/** Left edge of the first control column. */
+export const CONTROL_COLUMN_LEFT = 590;
+
+/** Left edge of the second control column. */
+export const CONTROL_COLUMN_RIGHT = 804;
+
+/** Minimum width of a control panel. Two columns of this fill the control area. */
+export const CONTROL_PANEL_WIDTH = 200;
+
+/** Full width of the control area, spanning both columns. */
+export const CONTROL_AREA_WIDTH = 414;
+
+/** Top of the full-width area under the control columns, used for the graph. */
+export const WIDE_AREA_TOP = 385;
 
 /** Font size for panel titles. */
 export const TITLE_FONT_SIZE = 15;
@@ -172,6 +187,9 @@ HeatTransferNamespace.register("HeatTransferConstants", {
   ADVECTION_CFL,
   AMBIENT_TEMPERATURE_K,
   BRUSH_STRENGTH,
+  CONTROL_AREA_WIDTH,
+  CONTROL_COLUMN_LEFT,
+  CONTROL_COLUMN_RIGHT,
   CONTROL_PANEL_WIDTH,
   COOL_BRUSH_TEMPERATURE_K,
   CROSS_SECTION_SAMPLES,
@@ -187,6 +205,7 @@ HeatTransferNamespace.register("HeatTransferConstants", {
   ISOTHERM_INTERVAL_K,
   KELVIN_TO_CELSIUS_OFFSET,
   LABEL_FONT_SIZE,
+  LEGEND_LEFT,
   MAX_ARROW_LENGTH_FRACTION,
   MAX_BRUSH_RADIUS_FRACTION,
   MAX_CPU_RESOLUTION,
@@ -206,4 +225,5 @@ HeatTransferNamespace.register("HeatTransferConstants", {
   SMALL_FONT_SIZE,
   SUBSTEPS_PER_FRAME,
   TITLE_FONT_SIZE,
+  WIDE_AREA_TOP,
 });

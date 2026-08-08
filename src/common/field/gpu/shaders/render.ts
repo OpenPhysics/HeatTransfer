@@ -68,7 +68,7 @@ const LAYER_GRADIENT: u32 = 4u;
 const LAYER_MATERIAL: u32 = 8u;
 
 const GRADIENT_LIFT: f32 = 0.55;
-const MATERIAL_TINT_ALPHA: f32 = 0.45;
+const MATERIAL_TINT_ALPHA: f32 = 0.35;
 
 @group(0) @binding(0) var temperatureTexture: texture_2d<f32>;
 @group(0) @binding(1) var materialTexture: texture_2d<f32>;

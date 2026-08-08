@@ -7,65 +7,173 @@
     "combined": "Heat Transfer",
     "materials": "Materials"
   },
+  "controls": {
+    "fieldLayers": "Field Layers",
+    "temperatureLayer": "Temperature",
+    "isothermLayer": "Isotherms",
+    "heatFluxLayer": "Heat Flux",
+    "velocityLayer": "Velocity",
+    "gradientLayer": "Gradient",
+    "materialLayer": "Material",
+    "brush": "Brush",
+    "heat": "Heat",
+    "cool": "Cool",
+    "brushSize": "Brush Size",
+    "material": "Material",
+    "anisotropy": "Anisotropy",
+    "flow": "Flow",
+    "flowPattern": "Pattern",
+    "flowSpeed": "Flow Speed",
+    "transportRegime": "Transport",
+    "diffusionDominated": "Diffusion",
+    "advectionDominated": "Advection",
+    "edges": "Edges",
+    "showProbe": "Probe",
+    "showCrossSection": "Cross-section",
+    "paintMaterial": "Paint",
+    "clearField": "Clear Field"
+  },
+  "materials": {
+    "copper": "Copper",
+    "aluminum": "Aluminum",
+    "steel": "Steel",
+    "glass": "Glass",
+    "water": "Water",
+    "wood": "Wood",
+    "insulator": "Insulator"
+  },
+  "flows": {
+    "none": "Still",
+    "uniform": "Uniform",
+    "channel": "Channel",
+    "vortex": "Vortex",
+    "plume": "Plume"
+  },
+  "edges": {
+    "insulated": "Insulated",
+    "fixed": "Fixed",
+    "periodic": "Periodic"
+  },
+  "readouts": {
+    "celsius": "{{value}} °C",
+    "conductivity": "k = {{value}} W/m·K",
+    "ratio": "kx : ky = {{value}}",
+    "diffusivity": "α = {{value}} m²/s",
+    "speed": "{{value}} mm/s",
+    "elapsed": "t = {{value}} s",
+    "peclet": "Pe = {{value}}",
+    "grid": "{{width}} × {{height}} cells",
+    "backendWebgpu": "WebGPU",
+    "backendCpu": "CPU fallback",
+    "range": "{{min}} to {{max}} °C",
+    "conductionDominates": "Conduction dominates",
+    "flowDominates": "Flow dominates",
+    "comparable": "Comparable"
+  },
+  "graph": {
+    "title": "Along the cross-section",
+    "distanceAxis": "Distance (mm)",
+    "temperatureAxis": "T (°C)",
+    "fluxAxis": "q (kW/m²)",
+    "showFlux": "Show flux"
+  },
+  "legend": {
+    "title": "Temperature"
+  },
+  "keyboardHelp": {
+    "title": "Paint on the field",
+    "moveCursor": "Move the paint cursor",
+    "moveCursorSlower": "Move the cursor in smaller steps",
+    "paint": "Paint at the cursor"
+  },
+  "preferences": {
+    "title": "Simulation",
+    "resolution": "Grid Resolution",
+    "resolutionHelp": "Finer grids resolve more structure and need more GPU work. Takes effect when a screen is reloaded.",
+    "resolutionClassroom": "128 × 128 (classroom)",
+    "resolutionHigh": "512 × 512 (high)",
+    "resolutionLarge": "1024 × 1024 (large)",
+    "resolutionExtreme": "2048 × 2048 (extreme)",
+    "showFieldStatus": "Show field engine status"
+  },
   "a11y": {
+    "shared": {
+      "controls": {
+        "field": "Temperature field",
+        "fieldHelp": "Move the paint cursor with the arrow keys, hold shift for finer steps, then press space or enter to paint.",
+        "fieldReadOnlyHelp": "The temperature field. Use the controls to change what is shown.",
+        "brushMode": "What the brush deposits",
+        "brushSize": "Brush size",
+        "material": "Plate material",
+        "paintMaterial": "Material the brush paints",
+        "anisotropy": "Ratio of conductivity along x to conductivity along y",
+        "flowPattern": "Velocity field pattern",
+        "flowSpeed": "Peak flow speed",
+        "transportRegime": "Balance between diffusion and advection",
+        "edges": "Behaviour of the field at the edges of the plate",
+        "layers": "Which field layers are drawn",
+        "probe": "Temperature probe",
+        "probeHelp": "Drag the probe over the field to read the temperature at a point.",
+        "crossSectionStart": "Start of the cross-section line",
+        "crossSectionEnd": "End of the cross-section line",
+        "clearField": "Return the temperature field to its starting state without changing the other controls",
+        "fieldStatus": "Field engine status"
+      }
+    },
     "temperature": {
       "screenSummary": {
-        "playArea": "The play area shows the main simulation content.",
-        "controlArea": "The control area has a Reset All button that returns the simulation to its starting state.",
-        "interactionHint": "Explore the simulation by interacting with its controls."
+        "playArea": "A square plate whose colour shows its temperature at every point. Painting with the heat or cool brush changes the temperature where you paint.",
+        "controlArea": "Controls choose whether the brush heats or cools, set its size, turn isotherm lines on and off, and reset the plate.",
+        "interactionHint": "Paint on the plate to make hot and cold regions, then read the temperature with the probe."
       },
-      "currentDetails": "The simulation is in its initial state.",
+      "currentDetails": "The plate ranges from {{min}} to {{max}} degrees Celsius.",
       "controls": {
-        "exampleControl": "Example control"
+        "isotherms": "Draw lines joining points at the same temperature"
       }
     },
     "conduction": {
       "screenSummary": {
-        "playArea": "The play area shows the main simulation content.",
-        "controlArea": "The control area has a Reset All button that returns the simulation to its starting state.",
-        "interactionHint": "Explore the simulation by interacting with its controls."
+        "playArea": "A plate of a chosen material, with its temperature shown as colour and the heat flux shown as arrows pointing from hot toward cold.",
+        "controlArea": "Controls choose the material, set the behaviour of the plate edges, select which layers are drawn, and place a cross-section line.",
+        "interactionHint": "Paint a hot spot, then watch the arrows and see how much faster heat spreads through copper than through glass."
       },
-      "currentDetails": "The simulation is in its initial state.",
+      "currentDetails": "The plate ranges from {{min}} to {{max}} degrees Celsius.",
       "controls": {
-        "exampleControl": "Example control"
+        "crossSection": "Show a line across the plate and graph the temperature along it"
       }
     },
     "convection": {
       "screenSummary": {
-        "playArea": "The play area shows the main simulation content.",
-        "controlArea": "The control area has a Reset All button that returns the simulation to its starting state.",
-        "interactionHint": "Explore the simulation by interacting with its controls."
+        "playArea": "A plate carrying both a temperature field and a velocity field. Tracer particles drift with the flow, carrying warm and cool regions with them.",
+        "controlArea": "Controls choose the flow pattern, set the flow speed, and select which layers are drawn.",
+        "interactionHint": "Paint a hot spot into the flow and watch it be carried along as well as spreading out."
       },
-      "currentDetails": "The simulation is in its initial state.",
+      "currentDetails": "The plate ranges from {{min}} to {{max}} degrees Celsius.",
       "controls": {
-        "exampleControl": "Example control"
+        "flowPreset": "Choose the shape of the velocity field"
       }
     },
     "combined": {
       "screenSummary": {
-        "playArea": "The play area shows the main simulation content.",
-        "controlArea": "The control area has a Reset All button that returns the simulation to its starting state.",
-        "interactionHint": "Explore the simulation by interacting with its controls."
+        "playArea": "A plate where heat both diffuses through the material and is carried by a flow. The balance between the two is adjustable.",
+        "controlArea": "A transport control shifts between diffusion-dominated and advection-dominated behaviour, with the resulting Péclet number displayed. Layer checkboxes choose what is drawn.",
+        "interactionHint": "Move the transport control and watch the same hot spot change from spreading evenly to being swept downstream."
       },
-      "currentDetails": "The simulation is in its initial state.",
+      "currentDetails": "The plate ranges from {{min}} to {{max}} degrees Celsius. The Péclet number is {{peclet}}.",
       "controls": {
-        "exampleControl": "Example control"
+        "transport": "Shift between diffusion-dominated and advection-dominated transport"
       }
     },
     "materials": {
       "screenSummary": {
-        "playArea": "The play area shows the main simulation content.",
-        "controlArea": "The control area has a Reset All button that returns the simulation to its starting state.",
-        "interactionHint": "Explore the simulation by interacting with its controls."
+        "playArea": "A plate whose material can differ from place to place. Painting material into the plate builds composites, barriers, and channels for heat.",
+        "controlArea": "Controls choose which material the brush paints, how anisotropic it is, and which layers are drawn.",
+        "interactionHint": "Paint a strip of insulator across the plate, then paint a hot spot on one side and watch heat go around the barrier."
       },
-      "currentDetails": "The simulation is in its initial state.",
+      "currentDetails": "The plate ranges from {{min}} to {{max}} degrees Celsius.",
       "controls": {
-        "exampleControl": "Example control"
+        "anisotropyHelp": "Values above one let heat travel more easily left and right; values below one favour up and down"
       }
     }
-  },
-  "preferences": {
-    "title": "Simulation",
-    "exampleToggle": "Example Toggle"
   }
 }

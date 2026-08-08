@@ -92,6 +92,51 @@ export class StringManager {
     };
   }
 
+  /** Labels for the control panels: layers, brush, material, flow, transport, edges. */
+  public getControls() {
+    return stringProperties.controls;
+  }
+
+  /** Display names of the material presets, keyed by material id. */
+  public getMaterialNames() {
+    return stringProperties.materials;
+  }
+
+  /** Display names of the flow presets, keyed by preset id. */
+  public getFlowNames() {
+    return stringProperties.flows;
+  }
+
+  /** Display names of the boundary conditions, keyed by condition id. */
+  public getEdgeNames() {
+    return stringProperties.edges;
+  }
+
+  /** Patterns for numeric readouts. Each carries its own units. */
+  public getReadouts() {
+    return stringProperties.readouts;
+  }
+
+  /** Labels for the cross-section graph. */
+  public getGraph() {
+    return stringProperties.graph;
+  }
+
+  /** Labels for the temperature legend. */
+  public getLegend() {
+    return stringProperties.legend;
+  }
+
+  /** Labels for the sim-specific keyboard-help section. */
+  public getKeyboardHelp() {
+    return stringProperties.keyboardHelp;
+  }
+
+  /** Accessibility strings shared by every screen (control names and help text). */
+  public getSharedA11yStrings() {
+    return stringProperties.a11y.shared;
+  }
+
   /** Accessibility strings for the Temperature screen. */
   public getTemperatureA11yStrings() {
     return stringProperties.a11y.temperature;

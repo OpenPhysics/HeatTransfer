@@ -1,43 +1,59 @@
 /**
  * HeatTransferModel.ts
  *
- * The top-level model for the simulation screen.
+ * Screen 4: the laboratory. Both mechanisms run, and the balance between them is
+ * the control.
  *
- * Add your simulation's state here using reactive Property objects from
- * scenerystack/axon. The view observes these properties and updates automatically.
- *
- * ── Example ──────────────────────────────────────────────────────────────────
- *   import { BooleanProperty, NumberProperty } from "scenerystack/axon";
- *
- *   public readonly isRunningProperty = new BooleanProperty(false);
- *   public readonly timeProperty = new NumberProperty(0);    // seconds
- *
- * ── Step cycle ────────────────────────────────────────────────────────────────
- * The Sim calls step(dt) on every animation frame. Advance your model state
- * in that method (e.g. integrate equations, update positions).
- *
- * ── Reset ─────────────────────────────────────────────────────────────────────
- * reset() is called when the user presses Reset All. Call .reset() on every
- * Property declared here.
+ * Every layer is available here because the point of the screen is that they are
+ * all views of one state: the same texture drives the colour map, the contour
+ * pass, the flux arrows, and the gradient overlay, and the tracer particles ride
+ * the same velocity field the advection pass reads. Nothing a checkbox does can
+ * change the simulation.
  */
 import type { TModel } from "scenerystack/joist";
+import { BoundaryCondition, FlowPreset, InitialCondition } from "../../common/field/FieldTypes.js";
+import { FieldSimulationModel } from "../../common/model/FieldSimulationModel.js";
+import { FIELD_VIEW_SIZE } from "../../HeatTransferConstants.js";
+import type { HeatTransferPreferencesModel } from "../../preferences/HeatTransferPreferencesModel.js";
+
+/** Backing-canvas resolution multiplier, so the field is crisp on high-DPI displays. */
+const CANVAS_SCALE = 2;
 
 export class HeatTransferModel implements TModel {
-  /**
-   * Resets all model state to initial values.
-   * Called when the user presses the Reset All button.
-   */
-  public reset(): void {
-    // TODO: call .reset() on every Property declared in this model
+  public readonly field: FieldSimulationModel;
+
+  public constructor(preferences: HeatTransferPreferencesModel) {
+    this.field = new FieldSimulationModel({
+      advectionEnabled: true,
+      boundaryCondition: BoundaryCondition.PERIODIC,
+      defaultLayers: {
+        temperature: true,
+        isotherms: false,
+        heatFlux: true,
+        velocity: true,
+        gradient: false,
+        material: false,
+      },
+      initialCondition: InitialCondition.HOT_SPOT,
+      initialFlowPreset: FlowPreset.CHANNEL,
+      resolution: preferences.resolutionProperty.value,
+      displaySize: FIELD_VIEW_SIZE * CANVAS_SCALE,
+      initiallyPlaying: true,
+    });
+
+    this.field.materialIdProperty.value = "steel";
   }
 
-  /**
-   * Steps the model forward by dt seconds.
-   * Called every animation frame by the Sim framework.
-   *
-   * @param _dt - elapsed time in seconds since the last frame
-   */
-  public step(_dt: number): void {
-    // TODO: advance simulation state here
+  public step(dt: number): void {
+    this.field.step(dt);
+  }
+
+  public reset(): void {
+    this.field.reset();
+    this.field.materialIdProperty.value = "steel";
+  }
+
+  public dispose(): void {
+    this.field.dispose();
   }
 }

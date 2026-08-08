@@ -1,38 +1,28 @@
 /**
  * HeatTransferScreenSummaryContent.ts
  *
- * The accessible screen summary read by screen readers (SceneryStack's
- * Interactive Description). It appears at the top of the parallel DOM and gives
- * a non-visual user a way to orient themselves and to re-read the simulation's
- * current state at any time.
- *
- * A summary has four regions (all optional, but provide at least the first
- * three in every sim for consistency across OpenPhysics):
- *   - playAreaContent       — what the play area contains
- *   - controlAreaContent    — what the controls do
- *   - currentDetailsContent — a LIVE paragraph describing current state
- *   - interactionHintContent — a short hint on how to get started
- *
- * ── Making "current details" live ─────────────────────────────────────────────
- * The template has no model state, so currentDetails is a static string. In a
- * real sim, build a DerivedProperty over the relevant model Properties and pass
- * it as `currentDetailsContent` so the paragraph updates as the sim runs.
- * See LunarLander/src/.../LunarLanderScreenSummaryContent.ts for the pattern.
+ * The accessible screen summary for the Heat Transfer screen. `currentDetailsContent`
+ * is derived live from the field's coldest and hottest points, so re-reading the
+ * summary reports the present state of the plate rather than how it started.
  */
+import { DerivedProperty, PatternStringProperty } from "scenerystack/axon";
 import { ScreenSummaryContent } from "scenerystack/sim";
+import { formatCelsiusRounded, formatPeclet } from "../../common/view/formatters.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import type { HeatTransferModel } from "../model/HeatTransferModel.js";
 
 export class HeatTransferScreenSummaryContent extends ScreenSummaryContent {
-  // `model` is unused in the template but kept in the signature so real sims can
-  // derive a live currentDetailsContent from it without changing call sites.
-  public constructor(_model: HeatTransferModel) {
+  public constructor(model: HeatTransferModel) {
     const a11y = StringManager.getInstance().getHeatTransferA11yStrings();
 
     super({
       playAreaContent: a11y.screenSummary.playAreaStringProperty,
       controlAreaContent: a11y.screenSummary.controlAreaStringProperty,
-      currentDetailsContent: a11y.currentDetailsStringProperty,
+      currentDetailsContent: new PatternStringProperty(a11y.currentDetailsStringProperty, {
+        min: new DerivedProperty([model.field.minTemperatureProperty], (kelvin) => formatCelsiusRounded(kelvin)),
+        max: new DerivedProperty([model.field.maxTemperatureProperty], (kelvin) => formatCelsiusRounded(kelvin)),
+        peclet: new DerivedProperty([model.field.pecletNumberProperty], (peclet) => formatPeclet(peclet)),
+      }),
       interactionHintContent: a11y.screenSummary.interactionHintStringProperty,
     });
   }

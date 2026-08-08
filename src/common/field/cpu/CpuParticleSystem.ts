@@ -78,13 +78,12 @@ export class CpuParticleSystem {
       const vy = (velocity[cell + 1] ?? 0) * flowScale;
 
       // Velocity is metres/second; positions are in the unit square.
-      const nextU = u + (vx * dt) / physicalWidth;
-      const nextV = v + (vy * dt) / physicalHeight;
-
-      if (nextU < 0 || nextU > 1 || nextV < 0 || nextV > 1) {
-        this.respawn(n, PARTICLE_LIFETIME_S);
-        continue;
-      }
+      // Wrap rather than respawn: a tracer that leaves one side re-enters the
+      // other, which is what makes a uniform flow read as a steady stream. (The
+      // advection kernel wraps too whenever the boundary is periodic, so the
+      // tracers and the temperature they mark stay together.)
+      const nextU = wrapUnit(u + (vx * dt) / physicalWidth);
+      const nextV = wrapUnit(v + (vy * dt) / physicalHeight);
       this.positions[2 * n] = nextU;
       this.positions[2 * n + 1] = nextV;
     }
@@ -100,4 +99,9 @@ export class CpuParticleSystem {
   public get particleCount(): number {
     return this.count;
   }
+}
+
+/** Wraps a unit-square coordinate into [0, 1). */
+function wrapUnit(value: number): number {
+  return value - Math.floor(value);
 }

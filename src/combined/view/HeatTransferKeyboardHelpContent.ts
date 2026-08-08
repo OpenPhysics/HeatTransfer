@@ -2,15 +2,28 @@
  * HeatTransferKeyboardHelpContent.ts
  *
  * Content for the keyboard-help dialog (the "?" button in the navigation bar).
- * The template's only interactions are buttons and Reset All, so a single
- * basic-actions section covers the available keyboard controls. Add a slider or
- * combo-box section here as the simulation grows.
+ * This screen paints on the field, drags the probe, and uses a slider and
+ * checkboxes, so the left column carries the sim-specific paint section plus the
+ * stock slider and drag sections.
  */
 
-import { BasicActionsKeyboardHelpSection, TwoColumnKeyboardHelpContent } from "scenerystack/scenery-phet";
+import {
+  BasicActionsKeyboardHelpSection,
+  MoveDraggableItemsKeyboardHelpSection,
+  SliderControlsKeyboardHelpSection,
+  TwoColumnKeyboardHelpContent,
+} from "scenerystack/scenery-phet";
+import { HeatBrushKeyboardHelpSection } from "../../common/view/HeatBrushKeyboardHelpSection.js";
 
 export class HeatTransferKeyboardHelpContent extends TwoColumnKeyboardHelpContent {
   public constructor() {
-    super([new BasicActionsKeyboardHelpSection()], []);
+    super(
+      [
+        new HeatBrushKeyboardHelpSection(),
+        new MoveDraggableItemsKeyboardHelpSection(),
+        new SliderControlsKeyboardHelpSection(),
+      ],
+      [new BasicActionsKeyboardHelpSection({ withCheckboxContent: true })],
+    );
   }
 }

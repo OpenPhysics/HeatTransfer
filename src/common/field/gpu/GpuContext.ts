@@ -29,6 +29,8 @@ export const GpuUnavailableReason = {
   NO_DEVICE: "noDevice",
   /** A shader failed to compile on this device. */
   SHADER_ERROR: "shaderError",
+  /** The device works, but its canvas output cannot be composited into Scenery. */
+  PRESENTATION: "presentation",
   /** The user asked for the CPU backend explicitly. */
   FORCED: "forced",
 } as const;
@@ -83,6 +85,12 @@ export async function initializeGpuContext(forceCpu: boolean): Promise<GpuInitia
     return cached;
   }
 
+  if (!canPresentToCanvas(context.device, context.presentationFormat)) {
+    context.device.destroy();
+    cached = { context: null, reason: GpuUnavailableReason.PRESENTATION, diagnostics: [] };
+    return cached;
+  }
+
   cached = { context, reason: null, diagnostics: [] };
   return cached;
 }
@@ -90,6 +98,66 @@ export async function initializeGpuContext(forceCpu: boolean): Promise<GpuInitia
 /** Resets the cache. Test-only; the simulation acquires a device exactly once. */
 export function resetGpuContextForTesting(): void {
   cached = null;
+}
+
+/** Edge length of the throwaway canvas used by the presentation check. */
+const PRESENTATION_PROBE_SIZE = 4;
+
+/**
+ * Whether a WebGPU canvas's output can actually be composited into Scenery.
+ *
+ * The field reaches the scene graph as a Scenery `Image` wrapping the engine's
+ * canvas, which means the browser has to be able to `drawImage` a WebGPU-backed
+ * canvas into a 2-D one. That works on hardware, but not on every software
+ * rasterizer: some configurations happily create a device, compile every shader,
+ * and run compute passes correctly while presenting nothing a 2-D context can
+ * read. Without this check the symptom is a completely blank field with no error
+ * anywhere — strictly worse than the CPU fallback, which at least draws.
+ *
+ * So: clear a 4 x 4 canvas to an unmistakable colour, copy it, and look. If the
+ * pixel does not survive the trip, the device is unusable *for this simulation*
+ * however well it computes, and we take the CPU path.
+ */
+function canPresentToCanvas(device: GPUDevice, format: GPUTextureFormat): boolean {
+  try {
+    const source = document.createElement("canvas");
+    source.width = PRESENTATION_PROBE_SIZE;
+    source.height = PRESENTATION_PROBE_SIZE;
+    const gpuContext = source.getContext("webgpu");
+    if (!gpuContext) {
+      return false;
+    }
+    gpuContext.configure({ device, format, alphaMode: "opaque" });
+
+    const encoder = device.createCommandEncoder({ label: "presentationProbe" });
+    const pass = encoder.beginRenderPass({
+      colorAttachments: [
+        {
+          view: gpuContext.getCurrentTexture().createView(),
+          clearValue: { r: 1, g: 0, b: 0, a: 1 },
+          loadOp: "clear",
+          storeOp: "store",
+        },
+      ],
+    });
+    pass.end();
+    device.queue.submit([encoder.finish()]);
+
+    const destination = document.createElement("canvas");
+    destination.width = PRESENTATION_PROBE_SIZE;
+    destination.height = PRESENTATION_PROBE_SIZE;
+    const context2d = destination.getContext("2d", { willReadFrequently: true });
+    if (!context2d) {
+      return false;
+    }
+    context2d.drawImage(source, 0, 0);
+
+    const pixel = context2d.getImageData(1, 1, 1, 1).data;
+    // Red and opaque is what was cleared; anything else means it did not arrive.
+    return (pixel[0] ?? 0) > 200 && (pixel[3] ?? 0) > 200;
+  } catch {
+    return false;
+  }
 }
 
 /**
