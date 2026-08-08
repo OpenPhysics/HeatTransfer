@@ -1,0 +1,179 @@
+{
+  "title": "Transferencia de calor",
+  "screens": {
+    "temperature": "Temperatura",
+    "conduction": "Conducción",
+    "convection": "Convección",
+    "combined": "Transferencia de calor",
+    "materials": "Materiales"
+  },
+  "controls": {
+    "fieldLayers": "Capas del campo",
+    "temperatureLayer": "Temperatura",
+    "isothermLayer": "Isotermas",
+    "heatFluxLayer": "Flujo de calor",
+    "velocityLayer": "Velocidad",
+    "gradientLayer": "Gradiente",
+    "materialLayer": "Material",
+    "brush": "Pincel",
+    "heat": "Calentar",
+    "cool": "Enfriar",
+    "brushSize": "Tamaño del pincel",
+    "material": "Material",
+    "anisotropy": "Anisotropía",
+    "flow": "Flujo",
+    "flowPattern": "Patrón",
+    "flowSpeed": "Velocidad del flujo",
+    "transportRegime": "Transporte",
+    "diffusionDominated": "Difusión",
+    "advectionDominated": "Advección",
+    "edges": "Bordes",
+    "showProbe": "Sonda",
+    "showCrossSection": "Sección transversal",
+    "paintMaterial": "Pintar",
+    "clearField": "Limpiar campo"
+  },
+  "materials": {
+    "copper": "Cobre",
+    "aluminum": "Aluminio",
+    "steel": "Acero",
+    "glass": "Vidrio",
+    "water": "Agua",
+    "wood": "Madera",
+    "insulator": "Aislante"
+  },
+  "flows": {
+    "none": "En reposo",
+    "uniform": "Uniforme",
+    "channel": "Canal",
+    "vortex": "Vórtice",
+    "plume": "Pluma térmica"
+  },
+  "edges": {
+    "insulated": "Aislados",
+    "fixed": "Fijos",
+    "periodic": "Periódicos"
+  },
+  "readouts": {
+    "celsius": "{{value}} °C",
+    "conductivity": "k = {{value}} W/m·K",
+    "ratio": "kx : ky = {{value}}",
+    "diffusivity": "α = {{value}} m²/s",
+    "speed": "{{value}} mm/s",
+    "elapsed": "t = {{value}} s",
+    "peclet": "Pe = {{value}}",
+    "grid": "{{width}} × {{height}} celdas",
+    "backendWebgpu": "WebGPU",
+    "backendCpu": "CPU (alternativa)",
+    "range": "de {{min}} a {{max}} °C",
+    "conductionDominates": "Domina la conducción",
+    "flowDominates": "Domina el flujo",
+    "comparable": "Comparables"
+  },
+  "graph": {
+    "title": "A lo largo de la sección",
+    "distanceAxis": "Distancia (mm)",
+    "temperatureAxis": "T (°C)",
+    "fluxAxis": "q (kW/m²)",
+    "showFlux": "Mostrar flujo"
+  },
+  "legend": {
+    "title": "Temperatura"
+  },
+  "keyboardHelp": {
+    "title": "Pintar sobre el campo",
+    "moveCursor": "Mover el cursor de pintado",
+    "moveCursorSlower": "Mover el cursor en pasos más pequeños",
+    "paint": "Pintar en el cursor"
+  },
+  "preferences": {
+    "title": "Simulación",
+    "resolution": "Resolución de la malla",
+    "resolutionHelp": "Las mallas más finas resuelven más estructura y exigen más trabajo a la GPU. Se aplica al recargar una pantalla.",
+    "resolutionClassroom": "128 × 128 (aula)",
+    "resolutionHigh": "512 × 512 (alta)",
+    "resolutionLarge": "1024 × 1024 (grande)",
+    "resolutionExtreme": "2048 × 2048 (extrema)",
+    "showFieldStatus": "Mostrar el estado del motor de campos"
+  },
+  "a11y": {
+    "shared": {
+      "controls": {
+        "field": "Campo de temperatura",
+        "fieldHelp": "Mueve el cursor de pintado con las teclas de flecha, mantén mayúsculas para pasos más finos y pulsa espacio o intro para pintar.",
+        "fieldReadOnlyHelp": "El campo de temperatura. Usa los controles para cambiar lo que se muestra.",
+        "brushMode": "Lo que deposita el pincel",
+        "brushSize": "Tamaño del pincel",
+        "material": "Material de la placa",
+        "paintMaterial": "Material que pinta el pincel",
+        "anisotropy": "Relación entre la conductividad en x y la conductividad en y",
+        "flowPattern": "Patrón del campo de velocidad",
+        "flowSpeed": "Velocidad máxima del flujo",
+        "transportRegime": "Equilibrio entre difusión y advección",
+        "edges": "Comportamiento del campo en los bordes de la placa",
+        "layers": "Qué capas del campo se dibujan",
+        "probe": "Sonda de temperatura",
+        "probeHelp": "Arrastra la sonda sobre el campo para leer la temperatura en un punto.",
+        "crossSectionStart": "Inicio de la línea de sección transversal",
+        "crossSectionEnd": "Final de la línea de sección transversal",
+        "clearField": "Devuelve el campo de temperatura a su estado inicial sin cambiar los demás controles",
+        "fieldStatus": "Estado del motor de campos"
+      }
+    },
+    "temperature": {
+      "screenSummary": {
+        "playArea": "Una placa cuadrada cuyo color muestra su temperatura en cada punto. Pintar con el pincel de calor o de frío cambia la temperatura donde pintas.",
+        "controlArea": "Los controles eligen si el pincel calienta o enfría, ajustan su tamaño, activan y desactivan las isotermas y reinician la placa.",
+        "interactionHint": "Pinta sobre la placa para crear zonas calientes y frías, y luego lee la temperatura con la sonda."
+      },
+      "currentDetails": "La placa va de {{min}} a {{max}} grados Celsius.",
+      "controls": {
+        "isotherms": "Dibuja líneas que unen los puntos que están a la misma temperatura"
+      }
+    },
+    "conduction": {
+      "screenSummary": {
+        "playArea": "Una placa de un material elegido, con su temperatura en color y el flujo de calor en flechas que apuntan de lo caliente hacia lo frío.",
+        "controlArea": "Los controles eligen el material, fijan el comportamiento de los bordes, seleccionan las capas dibujadas y colocan una línea de sección transversal.",
+        "interactionHint": "Pinta un punto caliente y observa las flechas: el calor se extiende mucho más rápido por el cobre que por el vidrio."
+      },
+      "currentDetails": "La placa va de {{min}} a {{max}} grados Celsius.",
+      "controls": {
+        "crossSection": "Muestra una línea que cruza la placa y representa la temperatura a lo largo de ella"
+      }
+    },
+    "convection": {
+      "screenSummary": {
+        "playArea": "Una placa con un campo de temperatura y un campo de velocidad. Las partículas trazadoras se mueven con el flujo y arrastran consigo las zonas cálidas y frías.",
+        "controlArea": "Los controles eligen el patrón del flujo, ajustan su velocidad y seleccionan las capas dibujadas.",
+        "interactionHint": "Pinta un punto caliente dentro del flujo y observa cómo es arrastrado además de extenderse."
+      },
+      "currentDetails": "La placa va de {{min}} a {{max}} grados Celsius.",
+      "controls": {
+        "flowPreset": "Elige la forma del campo de velocidad"
+      }
+    },
+    "combined": {
+      "screenSummary": {
+        "playArea": "Una placa en la que el calor se difunde por el material y además es arrastrado por un flujo. El equilibrio entre ambos es ajustable.",
+        "controlArea": "Un control de transporte desplaza el comportamiento entre el dominio de la difusión y el de la advección, mostrando el número de Péclet resultante. Las casillas de capas eligen qué se dibuja.",
+        "interactionHint": "Mueve el control de transporte y observa cómo el mismo punto caliente pasa de extenderse por igual a ser arrastrado corriente abajo."
+      },
+      "currentDetails": "La placa va de {{min}} a {{max}} grados Celsius. El número de Péclet es {{peclet}}.",
+      "controls": {
+        "transport": "Desplaza el transporte entre el dominio de la difusión y el de la advección"
+      }
+    },
+    "materials": {
+      "screenSummary": {
+        "playArea": "Una placa cuyo material puede variar de un lugar a otro. Pintar material sobre la placa construye compuestos, barreras y canales para el calor.",
+        "controlArea": "Los controles eligen qué material pinta el pincel, cuán anisótropo es y qué capas se dibujan.",
+        "interactionHint": "Pinta una franja de aislante que cruce la placa, pinta después un punto caliente a un lado y observa cómo el calor rodea la barrera."
+      },
+      "currentDetails": "La placa va de {{min}} a {{max}} grados Celsius.",
+      "controls": {
+        "anisotropyHelp": "Los valores mayores que uno facilitan el paso del calor a izquierda y derecha; los menores que uno favorecen arriba y abajo"
+      }
+    }
+  }
+}

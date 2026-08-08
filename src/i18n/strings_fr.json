@@ -1,0 +1,179 @@
+{
+  "title": "Transfert de chaleur",
+  "screens": {
+    "temperature": "Température",
+    "conduction": "Conduction",
+    "convection": "Convection",
+    "combined": "Transfert de chaleur",
+    "materials": "Matériaux"
+  },
+  "controls": {
+    "fieldLayers": "Couches du champ",
+    "temperatureLayer": "Température",
+    "isothermLayer": "Isothermes",
+    "heatFluxLayer": "Flux de chaleur",
+    "velocityLayer": "Vitesse",
+    "gradientLayer": "Gradient",
+    "materialLayer": "Matériau",
+    "brush": "Pinceau",
+    "heat": "Chauffer",
+    "cool": "Refroidir",
+    "brushSize": "Taille du pinceau",
+    "material": "Matériau",
+    "anisotropy": "Anisotropie",
+    "flow": "Écoulement",
+    "flowPattern": "Motif",
+    "flowSpeed": "Vitesse d'écoulement",
+    "transportRegime": "Transport",
+    "diffusionDominated": "Diffusion",
+    "advectionDominated": "Advection",
+    "edges": "Bords",
+    "showProbe": "Sonde",
+    "showCrossSection": "Coupe",
+    "paintMaterial": "Peindre",
+    "clearField": "Effacer le champ"
+  },
+  "materials": {
+    "copper": "Cuivre",
+    "aluminum": "Aluminium",
+    "steel": "Acier",
+    "glass": "Verre",
+    "water": "Eau",
+    "wood": "Bois",
+    "insulator": "Isolant"
+  },
+  "flows": {
+    "none": "Au repos",
+    "uniform": "Uniforme",
+    "channel": "Canal",
+    "vortex": "Tourbillon",
+    "plume": "Panache"
+  },
+  "edges": {
+    "insulated": "Isolés",
+    "fixed": "Fixes",
+    "periodic": "Périodiques"
+  },
+  "readouts": {
+    "celsius": "{{value}} °C",
+    "conductivity": "k = {{value}} W/m·K",
+    "ratio": "kx : ky = {{value}}",
+    "diffusivity": "α = {{value}} m²/s",
+    "speed": "{{value}} mm/s",
+    "elapsed": "t = {{value}} s",
+    "peclet": "Pe = {{value}}",
+    "grid": "{{width}} × {{height}} cellules",
+    "backendWebgpu": "WebGPU",
+    "backendCpu": "CPU (secours)",
+    "range": "de {{min}} à {{max}} °C",
+    "conductionDominates": "La conduction domine",
+    "flowDominates": "L'écoulement domine",
+    "comparable": "Comparables"
+  },
+  "graph": {
+    "title": "Le long de la coupe",
+    "distanceAxis": "Distance (mm)",
+    "temperatureAxis": "T (°C)",
+    "fluxAxis": "q (kW/m²)",
+    "showFlux": "Afficher le flux"
+  },
+  "legend": {
+    "title": "Température"
+  },
+  "keyboardHelp": {
+    "title": "Peindre sur le champ",
+    "moveCursor": "Déplacer le curseur de peinture",
+    "moveCursorSlower": "Déplacer le curseur par pas plus fins",
+    "paint": "Peindre au curseur"
+  },
+  "preferences": {
+    "title": "Simulation",
+    "resolution": "Résolution de la grille",
+    "resolutionHelp": "Les grilles plus fines révèlent davantage de structure et sollicitent plus le GPU. L'effet s'applique au rechargement d'un écran.",
+    "resolutionClassroom": "128 × 128 (classe)",
+    "resolutionHigh": "512 × 512 (élevée)",
+    "resolutionLarge": "1024 × 1024 (grande)",
+    "resolutionExtreme": "2048 × 2048 (extrême)",
+    "showFieldStatus": "Afficher l'état du moteur de champs"
+  },
+  "a11y": {
+    "shared": {
+      "controls": {
+        "field": "Champ de température",
+        "fieldHelp": "Déplacez le curseur de peinture avec les touches fléchées, maintenez la touche majuscule pour des pas plus fins, puis appuyez sur espace ou entrée pour peindre.",
+        "fieldReadOnlyHelp": "Le champ de température. Utilisez les commandes pour changer ce qui est affiché.",
+        "brushMode": "Ce que dépose le pinceau",
+        "brushSize": "Taille du pinceau",
+        "material": "Matériau de la plaque",
+        "paintMaterial": "Matériau peint par le pinceau",
+        "anisotropy": "Rapport entre la conductivité selon x et la conductivité selon y",
+        "flowPattern": "Motif du champ de vitesse",
+        "flowSpeed": "Vitesse maximale de l'écoulement",
+        "transportRegime": "Équilibre entre diffusion et advection",
+        "edges": "Comportement du champ aux bords de la plaque",
+        "layers": "Couches du champ à dessiner",
+        "probe": "Sonde de température",
+        "probeHelp": "Faites glisser la sonde sur le champ pour lire la température en un point.",
+        "crossSectionStart": "Début de la ligne de coupe",
+        "crossSectionEnd": "Fin de la ligne de coupe",
+        "clearField": "Ramène le champ de température à son état initial sans modifier les autres commandes",
+        "fieldStatus": "État du moteur de champs"
+      }
+    },
+    "temperature": {
+      "screenSummary": {
+        "playArea": "Une plaque carrée dont la couleur indique la température en chaque point. Peindre avec le pinceau chaud ou froid modifie la température à l'endroit peint.",
+        "controlArea": "Les commandes choisissent si le pinceau chauffe ou refroidit, règlent sa taille, activent ou désactivent les isothermes et réinitialisent la plaque.",
+        "interactionHint": "Peignez sur la plaque pour créer des zones chaudes et froides, puis lisez la température avec la sonde."
+      },
+      "currentDetails": "La plaque va de {{min}} à {{max}} degrés Celsius.",
+      "controls": {
+        "isotherms": "Trace des lignes reliant les points à la même température"
+      }
+    },
+    "conduction": {
+      "screenSummary": {
+        "playArea": "Une plaque d'un matériau choisi, sa température en couleur et le flux de chaleur en flèches allant du chaud vers le froid.",
+        "controlArea": "Les commandes choisissent le matériau, fixent le comportement des bords, sélectionnent les couches dessinées et placent une ligne de coupe.",
+        "interactionHint": "Peignez un point chaud, puis regardez les flèches : la chaleur se propage bien plus vite dans le cuivre que dans le verre."
+      },
+      "currentDetails": "La plaque va de {{min}} à {{max}} degrés Celsius.",
+      "controls": {
+        "crossSection": "Affiche une ligne traversant la plaque et trace la température le long de celle-ci"
+      }
+    },
+    "convection": {
+      "screenSummary": {
+        "playArea": "Une plaque portant à la fois un champ de température et un champ de vitesse. Des particules traceuses dérivent avec l'écoulement et emportent les zones chaudes et froides.",
+        "controlArea": "Les commandes choisissent le motif de l'écoulement, règlent sa vitesse et sélectionnent les couches dessinées.",
+        "interactionHint": "Peignez un point chaud dans l'écoulement et observez-le être emporté en même temps qu'il s'étale."
+      },
+      "currentDetails": "La plaque va de {{min}} à {{max}} degrés Celsius.",
+      "controls": {
+        "flowPreset": "Choisit la forme du champ de vitesse"
+      }
+    },
+    "combined": {
+      "screenSummary": {
+        "playArea": "Une plaque où la chaleur diffuse dans le matériau et se trouve en même temps emportée par un écoulement. L'équilibre entre les deux est réglable.",
+        "controlArea": "Une commande de transport déplace le comportement entre dominante diffusive et dominante advective, en affichant le nombre de Péclet correspondant. Les cases à cocher choisissent les couches dessinées.",
+        "interactionHint": "Déplacez la commande de transport et observez le même point chaud passer d'un étalement régulier à un entraînement vers l'aval."
+      },
+      "currentDetails": "La plaque va de {{min}} à {{max}} degrés Celsius. Le nombre de Péclet vaut {{peclet}}.",
+      "controls": {
+        "transport": "Déplace le transport entre dominante diffusive et dominante advective"
+      }
+    },
+    "materials": {
+      "screenSummary": {
+        "playArea": "Une plaque dont le matériau peut varier d'un endroit à l'autre. Peindre du matériau construit des composites, des barrières et des canaux pour la chaleur.",
+        "controlArea": "Les commandes choisissent le matériau peint par le pinceau, son anisotropie et les couches dessinées.",
+        "interactionHint": "Peignez une bande d'isolant en travers de la plaque, peignez ensuite un point chaud d'un côté et observez la chaleur contourner la barrière."
+      },
+      "currentDetails": "La plaque va de {{min}} à {{max}} degrés Celsius.",
+      "controls": {
+        "anisotropyHelp": "Au-dessus de un, la chaleur circule plus facilement vers la gauche et la droite ; en dessous de un, vers le haut et le bas"
+      }
+    }
+  }
+}
