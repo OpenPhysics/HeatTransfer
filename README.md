@@ -1,5 +1,7 @@
 # Heat Transfer
 
+[![CI](https://github.com/OpenPhysics/HeatTransfer/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenPhysics/HeatTransfer/actions/workflows/ci.yml)
+
 An interactive simulation of heat as a **field**, built on a WebGPU field engine.
 
 Temperature, heat flux, velocity, and material properties are all fields living in
