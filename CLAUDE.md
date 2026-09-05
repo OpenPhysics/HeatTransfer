@@ -128,12 +128,11 @@ Full convention:
   inherited through `extends`, and the tests import src modules that use the
   WebGPU flag namespaces, so the test project includes
   `src/common/field/gpu/webgpu-globals.d.ts` alongside `tests`.
-- **`rgbToCss` in `ColorMap.ts`** — flagged by the compliance scan as a possible
-  hardcoded colour because it builds an `rgb(...)` string. It is a *format* helper,
-  not a palette: the components it is handed come either from the temperature ramp
-  (a quantitative encoding, deliberately not themed) or from a
-  `ProfileColorProperty` by way of `FieldRenderStyle`. Nothing in it chooses a
-  colour, and it is the single such helper in the sim.
+- **Hardcoded colors:** `rgbToCss` in `ColorMap.ts` is flagged by the compliance scan because it
+  builds an `rgb(...)` string. It is a *format* helper, not a palette: the components it is handed
+  come either from the temperature ramp (a quantitative encoding, deliberately not themed) or from a
+  `ProfileColorProperty` by way of `FieldRenderStyle`. Nothing in it chooses a colour, and it is the
+  single such helper in the sim.
 - **No `src/common/TimeModel.ts`.** The template's composable timer does not fit:
   the engine's simulated time is set by the stability-limited step, not by
   accumulating `dt`, so `FieldSimulationModel` owns `isPlayingProperty` and
