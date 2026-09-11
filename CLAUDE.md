@@ -1,7 +1,7 @@
 # CLAUDE.md — Heat Transfer
 
 Sim-specific context for AI assistants. General SceneryStack guidance:
-[OpenPhysics/.github/CLAUDE.md](https://github.com/OpenPhysics/.github/blob/main/CLAUDE.md).
+[OpenLyceum/.github/CLAUDE.md](https://github.com/OpenLyceum/.github/blob/main/CLAUDE.md).
 
 ## What this sim is
 
@@ -109,7 +109,7 @@ documented by `HeatBrushKeyboardHelpSection`. Keep that working when touching
 `FieldNode`.
 
 Full convention:
-[Baton/ACCESSIBILITY.md](https://github.com/OpenPhysics/Baton/blob/main/ACCESSIBILITY.md).
+[Baton/ACCESSIBILITY.md](https://github.com/OpenLyceum/Baton/blob/main/ACCESSIBILITY.md).
 
 ## Compliance carve-outs
 

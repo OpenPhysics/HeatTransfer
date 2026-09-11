@@ -301,7 +301,7 @@ understanding, and the UI should not blur it.
 ## Accessibility
 
 The three required layers, per
-[Baton/ACCESSIBILITY.md](https://github.com/OpenPhysics/Baton/blob/main/ACCESSIBILITY.md):
+[Baton/ACCESSIBILITY.md](https://github.com/OpenLyceum/Baton/blob/main/ACCESSIBILITY.md):
 
 1. **PDOM names.** Every interactive node carries an `accessibleName` from the
    `a11y` string group.

@@ -1,6 +1,6 @@
 # Heat Transfer
 
-[![CI](https://github.com/OpenPhysics/HeatTransfer/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenPhysics/HeatTransfer/actions/workflows/ci.yml)
+[![CI](../../actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
 
 An interactive simulation of heat as a **field**, built on a WebGPU field engine.
 
@@ -88,10 +88,10 @@ architecture in [`doc/implementation-notes.md`](doc/implementation-notes.md).
 
 ## License
 
-[AGPL-3.0-or-later](https://github.com/OpenPhysics/.github/blob/main/LICENSE), the
-OpenPhysics organization default.
+[AGPL-3.0-or-later](https://github.com/OpenLyceum/.github/blob/main/LICENSE), the
+OpenLyceum organization default.
 
 ## Contributing
 
-See [CONTRIBUTING.md](https://github.com/OpenPhysics/.github/blob/main/CONTRIBUTING.md)
-in the OpenPhysics organization defaults.
+See [CONTRIBUTING.md](https://github.com/OpenLyceum/.github/blob/main/CONTRIBUTING.md)
+in the OpenLyceum organization defaults.
